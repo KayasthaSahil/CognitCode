@@ -1,0 +1,9 @@
+streamlit
+langchain
+langchain-google-genai
+pydantic
+python-dotenv
+pytest
+pytest-mock
+
+
