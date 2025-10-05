@@ -6,15 +6,12 @@ It integrates all backend modules (parser, analyzer, formatter, ai_core) into a 
 web interface that allows users to input code, analyze it for issues, and receive
 AI-powered refactoring suggestions.
 
-
-Author: CognitCode
 """
 
 import streamlit as st
 from typing import Tuple
 
-# Import all backend modules
-# Ensure the project root is on sys.path when running this file directly
+
 import os
 import sys
 _current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -49,12 +46,8 @@ def initialize_state():
 
 def render_main_layout() -> Tuple:
     """
-    Render the main application layout and return column objects.
-    
-    This function displays the main title and creates the two-column layout for the application.
-    
-    Returns:
-        Tuple: A tuple containing the left and right column objects
+    Render the main application layout and return column objects. 
+ 
     """
     # Display main title and description
     st.title("🔧 CognitCode - AI-Powered Code Refactoring")
@@ -73,26 +66,18 @@ def render_main_layout() -> Tuple:
 def render_input_form() -> Tuple[str, bool]:
     """
     Render the input form for code submission.
-    
-    This function creates a form with a text area for code input and a submit button.
-    It returns the code snippet and submission status.
-    
-    Returns:
-        Tuple[str, bool]: A tuple containing the code snippet string and submission status
     """
     with st.form(key='code_form'):
         st.subheader("📝 Original Code")
         st.markdown("Paste your Python code below:")
         
-        # Create text area for code input
         code_snippet = st.text_area(
             "Code Input",
             height=400,
             placeholder="def example_function():\n    # Your code here\n    pass",
             help="Enter the Python code you want to refactor"
         )
-        
-        # Create submit button
+
         submitted = st.form_submit_button(
             "🚀 Analyze & Refactor",
             type="primary",
@@ -106,17 +91,13 @@ def render_output_display():
     """
     Render the output display based on application state.
     
-    This function displays different content based on the current state:
-    - Loading: Shows a spinner
-    - Error: Shows an error message
-    - Result: Shows the refactored code and explanation
     """
-    # Check loading state
+
     if st.session_state['loading']:
         with st.spinner("🤖 AI is analyzing your code and generating refactoring suggestions..."):
-            st.empty()  # Placeholder for loading content
+            st.empty()  
     
-    # Check error state
+
     elif st.session_state['error']:
         st.error(f"❌ **Error:** {st.session_state['error']}")
         st.markdown("""
@@ -126,7 +107,6 @@ def render_output_display():
         - Try with a simpler code snippet first
         """)
     
-    # Check result state
     elif st.session_state['result']:
         result: RefactoringResponse = st.session_state['result']
         
@@ -136,7 +116,6 @@ def render_output_display():
         st.subheader("📖 Explanation")
         st.markdown(result.explanation)
         
-        # Add download button for refactored code
         st.download_button(
             label="💾 Download Refactored Code",
             data=result.refactored_code,
@@ -144,7 +123,7 @@ def render_output_display():
             mime="text/python"
         )
     
-    # Default state (no input yet)
+
     else:
         st.info("👈 Enter your Python code in the left panel and click 'Analyze & Refactor' to get started!")
 
@@ -153,41 +132,31 @@ def render_output_display():
 def main():
     """
     Main application controller that orchestrates the entire workflow.
-    
-    This function initializes the application state, renders the UI components,
-    and handles the backend pipeline when code is submitted for analysis.
+
     """
-    # Configure the page first (must be first Streamlit command)
     st.set_page_config(
         page_title="CognitCode",
         page_icon="🔧",
         layout="wide"
     )
     
-    # Initialize application state
     initialize_state()
-    
-    # Render main layout and get column objects
+
     col1, col2 = render_main_layout()
     
-    # Render input form in the first column
     with col1:
         code_snippet, submitted = render_input_form()
     
-    # Render output display in the second column
     with col2:
         render_output_display()
     
-    # Main controller logic: Execute backend pipeline if form was submitted
     if submitted:
-        # Validate input
         if not code_snippet.strip():
             st.session_state['error'] = "Please enter some code to analyze."
             st.session_state['loading'] = False
             st.rerun()
             return
         
-        # Set loading state and clear previous results
         st.session_state['loading'] = True
         st.session_state['result'] = None
         st.session_state['error'] = None
@@ -217,19 +186,16 @@ def main():
             
             # -- End Backend Pipeline --
             
-            # Store successful result in state
+            #successful result
             st.session_state['result'] = result
             
         except Exception as e:
-            # Store any error that occurs during the pipeline
             st.session_state['error'] = str(e)
         
         finally:
-            # Unset loading state and trigger a final rerun to display output
             st.session_state['loading'] = False
             st.rerun()
 
 
-# Run the main application
 if __name__ == "__main__":
     main()
